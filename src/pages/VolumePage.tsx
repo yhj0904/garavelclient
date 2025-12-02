@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
 
-const VolumePage = () => {
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [result, setResult] = useState(null);
-    const [loading, setLoading] = useState(false);
+interface VolumeResult {
+    volume: number;
+    width: number;
+    height: number;
+    depth: number;
+}
 
-    const handleFileChange = (e) => {
-        setSelectedFile(e.target.files[0]);
+const VolumePage: React.FC = () => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [result, setResult] = useState<VolumeResult | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedFile(e.target.files[0]);
+        }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         if (!selectedFile) return;
 
@@ -19,7 +28,7 @@ const VolumePage = () => {
         formData.append('file', selectedFile);
 
         try {
-            const response = await api.post('/ai/volume', formData, {
+            const response = await api.post<VolumeResult>('/ai/volume', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setResult(response.data);

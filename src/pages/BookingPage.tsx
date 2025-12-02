@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 
-const BookingPage = () => {
-    const [branches, setBranches] = useState([]);
-    const [services, setServices] = useState([]); // Assuming services are fetched or static
-    const [selectedBranch, setSelectedBranch] = useState('');
-    const [selectedService, setSelectedService] = useState('');
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
-    const [message, setMessage] = useState('');
+interface Branch {
+    id: number;
+    name: string;
+}
+
+const BookingPage: React.FC = () => {
+    const [branches, setBranches] = useState<Branch[]>([]);
+    const [selectedBranch, setSelectedBranch] = useState<string>('');
+    const [date, setDate] = useState<string>('');
+    const [time, setTime] = useState<string>('');
+    const [message, setMessage] = useState<string>('');
 
     useEffect(() => {
         // Fetch branches
-        const fetchBranches = async () => {
+        const fetchBranches = async (): Promise<void> => {
             try {
-                const response = await api.get('/branches');
+                const response = await api.get<Branch[] | { items: Branch[] }>('/branches');
                 // Adjust based on actual API response structure
                 // Assuming response.data is a list or response.data.items
                 setBranches(Array.isArray(response.data) ? response.data : response.data.items || []);
@@ -25,12 +28,11 @@ const BookingPage = () => {
         fetchBranches();
     }, []);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         try {
             await api.post('/bookings', {
                 branch_id: selectedBranch,
-                service_id: selectedService, // If applicable
                 booking_time: `${date}T${time}:00`, // ISO format
                 notes: message
             });
@@ -86,7 +88,7 @@ const BookingPage = () => {
                     <textarea
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        rows="4"
+                        rows={4}
                     ></textarea>
                 </div>
 

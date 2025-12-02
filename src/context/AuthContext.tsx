@@ -1,10 +1,36 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import api from '../api/axios';
 
-const AuthContext = createContext(null);
+interface User {
+    id: number;
+    email: string;
+    name: string;
+    phone?: string;
+}
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+interface AuthContextType {
+    user: User | null;
+    login: (email: string, password: string) => Promise<boolean>;
+    register: (userData: RegisterData) => Promise<boolean>;
+    logout: () => void;
+    loading: boolean;
+}
+
+interface RegisterData {
+    email: string;
+    password: string;
+    name: string;
+    phone?: string;
+}
+
+interface AuthProviderProps {
+    children: ReactNode;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -13,7 +39,7 @@ export const AuthProvider = ({ children }) => {
             if (token) {
                 try {
                     // Verify token and get user info
-                    // Assuming there's an endpoint /auth/me or similar. 
+                    // Assuming there's an endpoint /auth/me or similar.
                     // If not, we might need to decode the token or trust it until a 401 happens.
                     // For now, let's assume we can fetch user profile.
                     // If no such endpoint exists, we might need to adjust.
@@ -21,7 +47,7 @@ export const AuthProvider = ({ children }) => {
                     // I'll assume /auth/me exists or similar, if not I will fix it.
                     // Looking at server code again, I saw auth router.
                     // Let's try to fetch user data.
-                    const response = await api.get('/auth/me');
+                    const response = await api.get<User>('/auth/me');
                     setUser(response.data);
                 } catch (error) {
                     console.error("Auth check failed", error);
@@ -34,7 +60,7 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    const login = async (email, password) => {
+    const login = async (email: string, password: string): Promise<boolean> => {
         try {
             // Adjust endpoint based on server implementation
             // Usually /auth/login or /auth/token
@@ -45,7 +71,7 @@ export const AuthProvider = ({ children }) => {
             formData.append('username', email); // OAuth2 expects username
             formData.append('password', password);
 
-            const response = await api.post('/auth/login', formData, {
+            const response = await api.post<{ access_token: string }>('/auth/login', formData, {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
 
@@ -53,7 +79,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('access_token', access_token);
 
             // Fetch user data after login
-            const userResponse = await api.get('/auth/me');
+            const userResponse = await api.get<User>('/auth/me');
             setUser(userResponse.data);
             return true;
         } catch (error) {
@@ -62,7 +88,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (userData) => {
+    const register = async (userData: RegisterData): Promise<boolean> => {
         try {
             await api.post('/auth/register', userData);
             return true;
@@ -72,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = (): void => {
         localStorage.removeItem('access_token');
         setUser(null);
     };
@@ -84,4 +110,10 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};

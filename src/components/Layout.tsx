@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import ChatWidget from './ChatWidget';
 
-const Layout = () => {
+const Layout: React.FC = () => {
     return (
         <div className="app-layout">
             <Navbar />

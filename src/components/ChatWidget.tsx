@@ -1,16 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
-import api from '../api/axios';
 
-const ChatWidget = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
+interface Message {
+    id: number;
+    text: string;
+    sender: 'user' | 'bot';
+}
+
+const ChatWidget: React.FC = () => {
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [messages, setMessages] = useState<Message[]>([
         { id: 1, text: "Hello! How can I help you today?", sender: 'bot' }
     ]);
-    const [input, setInput] = useState('');
-    const messagesEndRef = useRef(null);
+    const [input, setInput] = useState<string>('');
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const scrollToBottom = () => {
+    const scrollToBottom = (): void => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
@@ -18,13 +23,13 @@ const ChatWidget = () => {
         scrollToBottom();
     }, [messages]);
 
-    const toggleChat = () => setIsOpen(!isOpen);
+    const toggleChat = (): void => setIsOpen(!isOpen);
 
-    const handleSend = async (e) => {
+    const handleSend = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         if (!input.trim()) return;
 
-        const userMsg = { id: Date.now(), text: input, sender: 'user' };
+        const userMsg: Message = { id: Date.now(), text: input, sender: 'user' };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
 
@@ -35,7 +40,7 @@ const ChatWidget = () => {
 
             // Mock response for now as endpoint might need specific setup
             setTimeout(() => {
-                const botMsg = { id: Date.now() + 1, text: "I'm a demo bot. I can help you with bookings!", sender: 'bot' };
+                const botMsg: Message = { id: Date.now() + 1, text: "I'm a demo bot. I can help you with bookings!", sender: 'bot' };
                 setMessages(prev => [...prev, botMsg]);
             }, 1000);
 

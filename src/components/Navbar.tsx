@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, Calendar } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    const handleLogout = () => {
+    const handleLogout = (): void => {
         logout();
         navigate('/login');
     };
@@ -39,7 +39,7 @@ const Navbar = () => {
                                 My Page
                             </Link>
                             <span className="user-info">
-                                {user.full_name || user.email}
+                                {user.name || user.email}
                             </span>
                             <button onClick={handleLogout} className="btn-logout">
                                 <LogOut size={18} />

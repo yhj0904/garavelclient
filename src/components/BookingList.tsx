@@ -1,7 +1,30 @@
 import React from 'react';
 import { format } from 'date-fns';
 
-const BookingList = ({ bookings }) => {
+interface Branch {
+    id: number;
+    name: string;
+}
+
+interface Service {
+    id: number;
+    name: string;
+}
+
+interface Booking {
+    id: number;
+    booking_time: string;
+    status: string;
+    branch?: Branch;
+    service?: Service;
+    notes?: string;
+}
+
+interface BookingListProps {
+    bookings: Booking[];
+}
+
+const BookingList: React.FC<BookingListProps> = ({ bookings }) => {
     if (!bookings || bookings.length === 0) {
         return <p className="no-data">No bookings found.</p>;
     }

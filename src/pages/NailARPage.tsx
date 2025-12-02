@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
 
-const NailARPage = () => {
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [resultImage, setResultImage] = useState(null);
-    const [loading, setLoading] = useState(false);
+const NailARPage: React.FC = () => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [resultImage, setResultImage] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const handleFileChange = (e) => {
-        setSelectedFile(e.target.files[0]);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedFile(e.target.files[0]);
+        }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         if (!selectedFile) return;
 
@@ -20,7 +22,7 @@ const NailARPage = () => {
 
         try {
             // Adjust endpoint based on actual API
-            const response = await api.post('/ai/nail-ar', formData, {
+            const response = await api.post<{ image_url: string }>('/ai/nail-ar', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setResultImage(response.data.image_url); // Assuming response contains URL

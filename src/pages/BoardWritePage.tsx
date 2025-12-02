@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
-const BoardWritePage = () => {
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+const BoardWritePage: React.FC = () => {
+    const [title, setTitle] = useState<string>('');
+    const [content, setContent] = useState<string>('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         try {
             await api.post('/boards', { title, content });
@@ -36,7 +36,7 @@ const BoardWritePage = () => {
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        rows="10"
+                        rows={10}
                         required
                     ></textarea>
                 </div>

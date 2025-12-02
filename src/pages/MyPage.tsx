@@ -3,26 +3,55 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import BookingList from '../components/BookingList';
 
-const MyPage = () => {
+interface Booking {
+    id: number;
+    booking_time: string;
+    status: string;
+    branch?: {
+        id: number;
+        name: string;
+    };
+    service?: {
+        id: number;
+        name: string;
+    };
+    notes?: string;
+}
+
+interface Review {
+    id: number;
+    rating: number;
+    comment: string;
+}
+
+interface Favorite {
+    id: number;
+    target_type: string;
+    target_id: number;
+}
+
+type TabType = 'bookings' | 'reviews' | 'favorites';
+
+const MyPage: React.FC = () => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState('bookings');
-    const [bookings, setBookings] = useState([]);
-    const [reviews, setReviews] = useState([]);
-    const [favorites, setFavorites] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState<TabType>('bookings');
+    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [favorites, setFavorites] = useState<Favorite[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (): Promise<void> => {
             setLoading(true);
             try {
                 if (activeTab === 'bookings') {
-                    const res = await api.get('/bookings/me');
+                    const res = await api.get<Booking[] | { items: Booking[] }>('/bookings/me');
                     setBookings(Array.isArray(res.data) ? res.data : res.data.items || []);
                 } else if (activeTab === 'reviews') {
-                    const res = await api.get('/reviews/me');
+                    const res = await api.get<Review[] | { items: Review[] }>('/reviews/me');
                     setReviews(Array.isArray(res.data) ? res.data : res.data.items || []);
                 } else if (activeTab === 'favorites') {
-                    const res = await api.get('/favorites/me');
+                    const res = await api.get<Favorite[] | { items: Favorite[] }>('/favorites/me');
                     setFavorites(Array.isArray(res.data) ? res.data : res.data.items || []);
                 }
             } catch (error) {
@@ -44,9 +73,9 @@ const MyPage = () => {
             <h1>My Page</h1>
             <div className="mypage-header">
                 <div className="profile-info">
-                    <h2>{user.full_name}</h2>
+                    <h2>{user.name}</h2>
                     <p>{user.email}</p>
-                    <p>{user.phone_number}</p>
+                    <p>{user.phone}</p>
                 </div>
             </div>
 

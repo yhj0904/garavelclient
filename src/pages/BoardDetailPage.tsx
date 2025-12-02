@@ -4,18 +4,39 @@ import api from '../api/axios';
 import { format } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 
-const BoardDetailPage = () => {
-    const { id } = useParams();
-    const [post, setPost] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [comment, setComment] = useState('');
+interface Author {
+    id: number;
+    name: string;
+}
+
+interface Comment {
+    id: number;
+    content: string;
+    created_at: string;
+    author?: Author;
+}
+
+interface Post {
+    id: number;
+    title: string;
+    content: string;
+    created_at: string;
+    author?: Author;
+    comments?: Comment[];
+}
+
+const BoardDetailPage: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const [post, setPost] = useState<Post | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [comment, setComment] = useState<string>('');
     const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchPost = async () => {
+        const fetchPost = async (): Promise<void> => {
             try {
-                const response = await api.get(`/boards/${id}`);
+                const response = await api.get<Post>(`/boards/${id}`);
                 setPost(response.data);
             } catch (error) {
                 console.error("Failed to fetch post", error);
@@ -27,13 +48,13 @@ const BoardDetailPage = () => {
         fetchPost();
     }, [id, navigate]);
 
-    const handleCommentSubmit = async (e) => {
+    const handleCommentSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         try {
             await api.post(`/boards/${id}/comments`, { content: comment });
             setComment('');
             // Refresh post to see new comment
-            const response = await api.get(`/boards/${id}`);
+            const response = await api.get<Post>(`/boards/${id}`);
             setPost(response.data);
         } catch (error) {
             console.error("Failed to post comment", error);
@@ -48,7 +69,7 @@ const BoardDetailPage = () => {
             <div className="post-content">
                 <h1>{post.title}</h1>
                 <div className="post-meta-detail">
-                    <span>By {post.author?.full_name || 'Unknown'}</span>
+                    <span>By {post.author?.name || 'Unknown'}</span>
                     <span>{format(new Date(post.created_at), 'PPP p')}</span>
                 </div>
                 <div className="post-body">
@@ -61,7 +82,7 @@ const BoardDetailPage = () => {
                 <div className="comment-list">
                     {post.comments && post.comments.map(c => (
                         <div key={c.id} className="comment-card">
-                            <p className="comment-author">{c.author?.full_name || 'Unknown'}</p>
+                            <p className="comment-author">{c.author?.name || 'Unknown'}</p>
                             <p className="comment-text">{c.content}</p>
                             <span className="comment-date">{format(new Date(c.created_at), 'PP p')}</span>
                         </div>

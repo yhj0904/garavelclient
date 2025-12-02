@@ -13,7 +13,7 @@ import BoardWritePage from './pages/BoardWritePage';
 import NailARPage from './pages/NailARPage';
 import VolumePage from './pages/VolumePage';
 
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
@@ -34,6 +34,6 @@ function App() {
       </Router>
     </AuthProvider>
   );
-}
+};
 
 export default App;

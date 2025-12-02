@@ -2,25 +2,32 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const RegisterPage = () => {
-    const [formData, setFormData] = useState({
+interface FormData {
+    email: string;
+    password: string;
+    name: string;
+    phone?: string;
+}
+
+const RegisterPage: React.FC = () => {
+    const [formData, setFormData] = useState<FormData>({
         email: '',
         password: '',
-        full_name: '',
-        phone_number: ''
+        name: '',
+        phone: ''
     });
-    const [error, setError] = useState('');
+    const [error, setError] = useState<string>('');
     const { register } = useAuth();
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         setError('');
         try {
@@ -41,8 +48,8 @@ const RegisterPage = () => {
                         <label>Full Name</label>
                         <input
                             type="text"
-                            name="full_name"
-                            value={formData.full_name}
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
                             required
                         />
@@ -61,8 +68,8 @@ const RegisterPage = () => {
                         <label>Phone Number</label>
                         <input
                             type="tel"
-                            name="phone_number"
-                            value={formData.phone_number}
+                            name="phone"
+                            value={formData.phone}
                             onChange={handleChange}
                         />
                     </div>
